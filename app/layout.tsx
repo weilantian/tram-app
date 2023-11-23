@@ -9,6 +9,7 @@ import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import NavBar from "@/components/NavBar";
+import ThemeRegistry from "@/components/ThemeRegistry";
 
 export const metadata: Metadata = {
   title: "Tram App",
@@ -22,15 +23,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <NavBar />
-        <Box
-          sx={{
-            pt: 12,
-            px: 2,
-          }}
-        >
-          {children}
-        </Box>
+        <ThemeRegistry>
+          <NavBar />
+          <Box
+            sx={{
+              pt: 12,
+              px: 2,
+            }}
+          >
+            {children}
+          </Box>
+        </ThemeRegistry>
       </body>
     </html>
   );

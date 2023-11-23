@@ -19,7 +19,9 @@ export default async function Home({
 }: {
   searchParams: { searchTerm: string };
 }) {
-  const foundStops = await searchStops(searchTerm);
+  const foundStops = await searchStops(
+    searchTerm ? searchTerm.replace(/\s/g, "+") : ""
+  );
 
   return (
     <main>
@@ -54,7 +56,7 @@ export default async function Home({
 
       <Typography variant="subtitle1">Nearby Stops</Typography>
       <Button>Get Nearby Stops</Button>
-      <Stack sx={{ mt: 2 }}>
+      {/* <Stack sx={{ mt: 2 }}>
         {popularStops.map((stop) => (
           <Card key={stop.stopId}>
             <CardContent>
@@ -69,7 +71,7 @@ export default async function Home({
             </CardContent>
           </Card>
         ))}
-      </Stack>
+      </Stack> */}
     </main>
   );
 }
