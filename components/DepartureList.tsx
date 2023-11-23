@@ -14,7 +14,8 @@ const RouteItem: FC<{ route: Route; departures: Array<Departure> }> = ({
     return departures
       .filter(
         (departure) =>
-          departure.scheduledDeparture.getTime() > new Date().getTime()
+          (departure.estimatedDeparture?.getTime() ??
+            departure.scheduledDeparture.getTime()) > new Date().getTime()
       )
       .sort(
         (a, b) =>
