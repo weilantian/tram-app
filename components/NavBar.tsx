@@ -19,7 +19,7 @@ const NavBar = () => {
 
           <Link href="/">
             <Typography variant="h6" component="div">
-              Melborune Tram Tracker
+              Melbourne Tram Tracker
             </Typography>
           </Link>
         </Toolbar>
