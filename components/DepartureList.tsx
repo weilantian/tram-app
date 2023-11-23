@@ -1,7 +1,15 @@
 "use client";
 
 import { Departure, Direction, Route } from "@/lib/models";
-import { Card, CardContent, Typography, Box, Stack, Chip } from "@mui/material";
+import {
+  Card,
+  CardContent,
+  Typography,
+  Box,
+  Stack,
+  Chip,
+  NoSsr,
+} from "@mui/material";
 import { FC, useCallback, useEffect, useState } from "react";
 import { format, formatDistance } from "date-fns";
 import { AccessTime } from "@mui/icons-material";
@@ -11,20 +19,22 @@ const RouteItem: FC<{ route: Route; departures: Array<Departure> }> = ({
   route,
   departures,
 }) => {
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [currentTime, setCurrentTime] = useState(
+    new Date("2021-10-10T10:00:00+10:00")
+  );
   const computerateLatestDeparture = useCallback(() => {
     return departures
       .filter(
         (departure) =>
           (departure.estimatedDeparture?.getTime() ??
-            departure.scheduledDeparture.getTime()) > new Date().getTime()
+            departure.scheduledDeparture.getTime()) > currentTime.getTime()
       )
       .sort(
         (a, b) =>
           new Date(a.estimatedDeparture ?? a.scheduledDeparture).getTime() -
           new Date(b.estimatedDeparture ?? b.scheduledDeparture).getTime()
       )[0];
-  }, [departures]);
+  }, [departures, currentTime]);
 
   const [latestDeparture, setLatestDeparture] = useState<Departure | undefined>(
     computerateLatestDeparture()
