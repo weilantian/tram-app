@@ -1,6 +1,7 @@
 import { Box, Toolbar, IconButton, Typography, Button } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
 import MenuIcon from "@mui/icons-material/Menu";
+import Link from "next/link";
 const NavBar = () => {
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -15,10 +16,12 @@ const NavBar = () => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Melborune Tram Tracker
-          </Typography>
-          <Button color="inherit">Login</Button>
+
+          <Link href="/">
+            <Typography variant="h6" component="div">
+              Melborune Tram Tracker
+            </Typography>
+          </Link>
         </Toolbar>
       </AppBar>
     </Box>

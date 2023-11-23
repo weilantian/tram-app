@@ -4,6 +4,8 @@ import { Departure, Direction, Route } from "@/lib/models";
 import { Card, CardContent, Typography, Box, Stack, Chip } from "@mui/material";
 import { FC, useCallback, useEffect, useState } from "react";
 import { format, formatDistance } from "date-fns";
+import { AccessTime } from "@mui/icons-material";
+import RssFeedIcon from "@mui/icons-material/RssFeed";
 
 const RouteItem: FC<{ route: Route; departures: Array<Departure> }> = ({
   route,
@@ -50,18 +52,33 @@ const RouteItem: FC<{ route: Route; departures: Array<Departure> }> = ({
             <Box>
               <Typography fontWeight={500}>{route.routeName}</Typography>
 
-              <Typography>
-                {format(
+              <Chip
+                sx={{
+                  mt: 1,
+                }}
+                icon={<AccessTime />}
+                label={format(
                   latestDeparture?.estimatedDeparture ??
                     latestDeparture?.scheduledDeparture!,
                   "HH:mm"
                 )}
-              </Typography>
+              ></Chip>
             </Box>
           </Stack>
           {(latestDeparture?.estimatedDeparture ||
             latestDeparture?.scheduledDeparture) && (
             <Chip
+              color={
+                latestDeparture?.estimatedDeparture ? "success" : "default"
+              }
+              icon={
+                <RssFeedIcon
+                  sx={{
+                    fontSize: 16,
+                  }}
+                />
+              }
+              variant="outlined"
               label={formatDistance(
                 latestDeparture?.estimatedDeparture ??
                   latestDeparture?.scheduledDeparture,
@@ -84,11 +101,7 @@ const DepartureList: FC<{
     <Card>
       <CardContent>
         <Typography>Trams</Typography>
-        <Box
-          sx={{
-            px: 2,
-          }}
-        >
+        <Box>
           {directions.map((direction) => (
             <Card
               sx={{
