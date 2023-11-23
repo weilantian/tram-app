@@ -1,7 +1,7 @@
 import axios from "axios";
 import crypto from "crypto";
-import { Stop } from "./models";
-import { z } from "zod";
+import { Departure, Direction, Disruption, Route, Stop } from "./models";
+import { number, z } from "zod";
 
 const baseUrl = "https://timetableapi.ptv.vic.gov.au";
 
@@ -26,8 +26,6 @@ const request = async (
   urlWithParams = urlWithParams.includes("?")
     ? `${urlWithParams}&devid=${devId}`
     : `${urlWithParams}?devid=${devId}`;
-
-  console.log(urlWithParams);
 
   const hashed = crypto.createHmac("sha1", apiKey);
   hashed.update(urlWithParams);
@@ -93,7 +91,18 @@ export const getStopDetail = async (stopId: number, routeType: number = 1) => {
   }
 };
 
-export const getDepartures = async (stopId: number, routeType: number = 1) => {
+export const getDepartures = async (
+  stopId: number,
+  routeType: number = 1
+): Promise<
+  | {
+      disruptions: Array<Disruption>;
+      departures: Array<Departure>;
+      routes: Array<Route>;
+      directions: Array<Direction>;
+    }
+  | undefined
+> => {
   try {
     const response = await request(
       `/v3/departures/route_type/${routeType}/stop/${stopId}`,
@@ -104,9 +113,15 @@ export const getDepartures = async (stopId: number, routeType: number = 1) => {
       }
     );
 
-    console.log(response);
-
     const schema = z.object({
+      directions: z.record(
+        z.string(),
+        z.object({
+          route_id: z.number(),
+          direction_id: z.number(),
+          direction_name: z.string(),
+        })
+      ),
       disruptions: z.record(
         z.string(),
         z.object({
@@ -120,12 +135,16 @@ export const getDepartures = async (stopId: number, routeType: number = 1) => {
       ),
       departures: z.array(
         z.object({
+          direction_id: z.number(),
           at_platform: z.boolean(),
           stop_id: z.number(),
           route_id: z.number(),
           disruption_ids: z.array(z.number()),
-          scheduled_departure_utc: z.string(),
-          estimated_departure_utc: z.string().nullable(),
+          scheduled_departure_utc: z.string().transform((val) => new Date(val)),
+          estimated_departure_utc: z
+            .string()
+            .transform((val) => new Date(val))
+            .nullable(),
         })
       ),
       routes: z.record(
@@ -141,8 +160,13 @@ export const getDepartures = async (stopId: number, routeType: number = 1) => {
     const data = schema.parse(response);
 
     return {
+      directions: Object.entries(data.directions).map(([key, value]) => ({
+        directionId: value.direction_id,
+        directionName: value.direction_name,
+        routeId: value.route_id,
+      })),
       disruptions: Object.entries(data.disruptions).map(([key, value]) => ({
-        id: key,
+        id: Number(key),
         title: value.title,
         url: value.url,
         description: value.description,
@@ -151,12 +175,13 @@ export const getDepartures = async (stopId: number, routeType: number = 1) => {
         colour: value.colour,
       })),
       departures: data.departures.map((departure) => ({
+        directionId: departure.direction_id,
         stopId: departure.stop_id,
         disruptionIds: departure.disruption_ids,
         atPlatform: departure.at_platform,
         routeId: departure.route_id,
-        scheduledDepartureUtc: departure.scheduled_departure_utc,
-        estimatedDepartureUtc: departure.estimated_departure_utc,
+        scheduledDeparture: departure.scheduled_departure_utc,
+        estimatedDeparture: departure.estimated_departure_utc,
       })),
       routes: Object.entries(data.routes).map(([key, value]) => ({
         routeId: value.route_id,
@@ -170,9 +195,14 @@ export const getDepartures = async (stopId: number, routeType: number = 1) => {
 };
 
 export const searchStops = async (searchTerm: string) => {
-  const response = await request(`/v3/search/${searchTerm}`, {
-    route_types: [1],
-  });
+  const response = await request(
+    `/v3/search/${searchTerm}`,
+    {
+      route_types: [1],
+    },
+    undefined,
+    ["search", searchTerm]
+  );
   const schema = z.object({
     stops: z.array(
       z.object({

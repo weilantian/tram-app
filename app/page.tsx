@@ -26,6 +26,7 @@ export default async function Home({
       <form action="/">
         <Stack direction="row">
           <TextField
+            defaultValue={searchTerm}
             name="searchTerm"
             fullWidth
             id="outlined-basic"

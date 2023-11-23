@@ -1,5 +1,5 @@
 import { useParams } from "next/navigation";
-import { FC } from "react";
+import { FC, useCallback } from "react";
 import {
   Accordion,
   AccordionDetails,
@@ -13,12 +13,14 @@ import {
 } from "@mui/material";
 import { getDepartures, getStopDetail } from "@/lib/endpoint";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import DepartureList from "@/components/DepartureList";
 
 const DeparturePage: FC<{
   params: { id: string };
 }> = async ({ params }) => {
   const stop = await getStopDetail(Number(params.id));
   const departures = await getDepartures(Number(params.id));
+
   return (
     <Box>
       <Card>
@@ -59,31 +61,11 @@ const DeparturePage: FC<{
         </CardContent>
       </Card>
 
-      <Card>
-        <CardContent>
-          <Typography>Trams</Typography>
-          <Box
-            sx={{
-              px: 2,
-            }}
-          >
-            {departures?.routes.map((route) => (
-              <Card key={route.routeId}>
-                <CardContent>
-                  <Stack direction="row">
-                    <Box>
-                      <Typography>{route.routeNumber}</Typography>
-                    </Box>
-                    <Box>
-                      <Typography>{route.routeName}</Typography>
-                    </Box>
-                  </Stack>
-                </CardContent>
-              </Card>
-            ))}
-          </Box>
-        </CardContent>
-      </Card>
+      <DepartureList
+        directions={departures?.directions ?? []}
+        departures={departures?.departures ?? []}
+        routes={departures?.routes ?? []}
+      />
     </Box>
   );
 };
