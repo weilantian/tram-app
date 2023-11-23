@@ -72,11 +72,13 @@ const RouteItem: FC<{ route: Route; departures: Array<Departure> }> = ({
                 latestDeparture?.estimatedDeparture ? "success" : "default"
               }
               icon={
-                <RssFeedIcon
-                  sx={{
-                    fontSize: 16,
-                  }}
-                />
+                latestDeparture?.estimatedDeparture ? (
+                  <RssFeedIcon
+                    sx={{
+                      fontSize: 16,
+                    }}
+                  />
+                ) : undefined
               }
               variant="outlined"
               label={formatDistance(
